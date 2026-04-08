@@ -1,0 +1,985 @@
+/**
+ * ============================================================
+ * SISTEMA DE RH - POSIGRAF
+ * Folha de Estilos Global (style.css)
+ * ============================================================
+ *
+ * Descrição:
+ *   Arquivo de estilos compartilhado por todas as páginas
+ *   administrativas do sistema de Recursos Humanos da Posigraf.
+ *   Define a identidade visual, o sistema de cores, tipografia,
+ *   componentes reutilizáveis e o layout base com sidebar.
+ *
+ * Arquitetura:
+ *   - Variáveis CSS (Design Tokens)
+ *   - Reset e Base
+ *   - Layout (Sidebar + Conteúdo)
+ *   - Componentes (Cards, Botões, Inputs, Tabelas, Badges)
+ *   - Utilitários
+ *   - Responsividade
+ *
+ * Identidade Visual:
+ *   Paleta baseada no azul institucional Posigraf, com acentos
+ *   em ciano e tons neutros escuros para contraste adequado.
+ *
+ * Autor: Sistema RH Posigraf
+ * ============================================================
+ */
+
+/* ============================================================
+   1. IMPORTS DE FONTES
+   Importação de família tipográfica do Google Fonts.
+   - "Syne": display, para títulos e headings.
+   - "DM Sans": corpo de texto, leitura confortável em telas.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ============================================================
+   2. DESIGN TOKENS (Variáveis CSS)
+   Centraliza todos os valores de design para fácil manutenção
+   e consistência visual entre os componentes.
+   ============================================================ */
+:root {
+  /* --- Paleta Principal --- */
+  --azul-900: #0a1628;       /* Fundo sidebar profundo */
+  --azul-800: #0d1f3c;       /* Sidebar base */
+  --azul-700: #112a52;       /* Sidebar hover suave */
+  --azul-600: #1a3d6e;       /* Bordas e divisores */
+  --azul-500: #1e5ba8;       /* Cor primária da marca */
+  --azul-400: #2572d4;       /* Botões e links */
+  --azul-300: #4a90e2;       /* Hover de botões */
+  --azul-100: #d6e8ff;       /* Backgrounds suaves */
+  --azul-50:  #eef4ff;       /* Backgrounds muito suaves */
+
+  /* --- Acento Ciano --- */
+  --ciano-500: #00c8e8;
+  --ciano-400: #22daf5;
+  --ciano-100: #ccf5fc;
+
+  /* --- Neutros --- */
+  --neutro-900: #0f1117;
+  --neutro-800: #1c1f27;
+  --neutro-700: #2d3142;
+  --neutro-600: #4a4f66;
+  --neutro-400: #8b90a8;
+  --neutro-200: #d4d8e8;
+  --neutro-100: #eceef5;
+  --neutro-50:  #f5f6fa;
+  --branco: #ffffff;
+
+  /* --- Semânticas --- */
+  --sucesso: #0fba72;
+  --sucesso-bg: #e8faf3;
+  --erro: #e8344b;
+  --erro-bg: #fdeaed;
+  --aviso: #f5a623;
+  --aviso-bg: #fef6e4;
+  --info: var(--azul-400);
+  --info-bg: var(--azul-50);
+
+  /* --- Tipografia --- */
+  --fonte-display: 'Syne', sans-serif;
+  --fonte-corpo: 'DM Sans', sans-serif;
+
+  /* --- Espaçamentos --- */
+  --espaco-xs:  4px;
+  --espaco-sm:  8px;
+  --espaco-md:  16px;
+  --espaco-lg:  24px;
+  --espaco-xl:  32px;
+  --espaco-2xl: 48px;
+
+  /* --- Bordas --- */
+  --raio-sm: 6px;
+  --raio-md: 10px;
+  --raio-lg: 16px;
+  --raio-xl: 24px;
+  --raio-pill: 9999px;
+
+  /* --- Sombras --- */
+  --sombra-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --sombra-md: 0 4px 16px rgba(10, 30, 70, 0.10);
+  --sombra-lg: 0 8px 32px rgba(10, 30, 70, 0.16);
+  --sombra-azul: 0 4px 20px rgba(37, 114, 212, 0.25);
+
+  /* --- Transições --- */
+  --transicao: 0.2s ease;
+  --transicao-lenta: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Sidebar --- */
+  --sidebar-largura: 240px;
+  --sidebar-largura-min: 72px;
+}
+
+/* ============================================================
+   3. RESET E BASE
+   Normaliza comportamentos padrão do navegador e define
+   estilos fundamentais do documento.
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--fonte-corpo);
+  font-size: 0.9375rem;
+  color: var(--neutro-800);
+  background: var(--neutro-50);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   4. LAYOUT PRINCIPAL
+   Estrutura de duas colunas: sidebar fixa + área de conteúdo
+   com scroll independente.
+   ============================================================ */
+
+/* --- Wrapper geral --- */
+.app-wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --- SIDEBAR --- */
+#sidebar {
+  width: var(--sidebar-largura);
+  min-height: 100vh;
+  background: var(--azul-800);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: width var(--transicao-lenta);
+  overflow: hidden;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+}
+
+/* Linha decorativa superior da sidebar */
+#sidebar::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--azul-400), var(--ciano-500));
+  flex-shrink: 0;
+}
+
+/* --- Área do perfil no topo da sidebar --- */
+.sidebar-perfil {
+  padding: var(--espaco-lg) var(--espaco-md);
+  border-bottom: 1px solid var(--azul-600);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+/* --- Avatar do perfil --- */
+#fotoPerfil {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--raio-pill);
+  object-fit: cover;
+  border: 2px solid var(--azul-400);
+  box-shadow: 0 0 0 3px rgba(37,114,212,0.2);
+}
+
+/* --- Nome e e-mail no perfil --- */
+#nomePerfil {
+  font-family: var(--fonte-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--branco);
+  text-align: center;
+  line-height: 1.2;
+}
+
+#emailPerfil {
+  font-size: 0.72rem;
+  color: var(--neutro-400);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* --- Logo / Marca na sidebar --- */
+.sidebar-logo {
+  padding: var(--espaco-md) var(--espaco-md) var(--espaco-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+  border-bottom: 1px solid var(--azul-700);
+}
+
+.sidebar-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--azul-400), var(--ciano-500));
+  border-radius: var(--raio-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-texto {
+  font-family: var(--fonte-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--branco);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-logo-sub {
+  font-size: 0.65rem;
+  color: var(--ciano-500);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* --- Navegação da sidebar --- */
+.sidebar-nav {
+  flex: 1;
+  padding: var(--espaco-md) var(--espaco-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  overflow-y: auto;
+}
+
+/* Grupo de itens de nav com título de seção */
+.nav-secao-titulo {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutro-400);
+  padding: var(--espaco-sm) var(--espaco-sm) var(--espaco-xs);
+  margin-top: var(--espaco-sm);
+}
+
+/* --- Botões de navegação da sidebar --- */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+  padding: var(--espaco-sm) var(--espaco-md);
+  border-radius: var(--raio-md);
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.65);
+  font-family: var(--fonte-corpo);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transicao), color var(--transicao), transform var(--transicao);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.nav-btn .nav-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-btn:hover {
+  background: var(--azul-700);
+  color: var(--branco);
+  transform: translateX(2px);
+}
+
+/* Classe aplicada via JS para indicar página ativa */
+.nav-btn.ativo {
+  background: linear-gradient(90deg, var(--azul-500), var(--azul-400));
+  color: var(--branco);
+  font-weight: 600;
+  box-shadow: var(--sombra-azul);
+}
+
+.nav-btn.ativo::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--ciano-500);
+  border-radius: 0 2px 2px 0;
+}
+
+/* --- Área de logout no rodapé da sidebar --- */
+.sidebar-footer {
+  padding: var(--espaco-md);
+  border-top: 1px solid var(--azul-600);
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+  width: 100%;
+  padding: var(--espaco-sm) var(--espaco-md);
+  border-radius: var(--raio-md);
+  border: 1px solid rgba(232, 52, 75, 0.3);
+  background: transparent;
+  color: rgba(232, 52, 75, 0.8);
+  font-family: var(--fonte-corpo);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transicao);
+  white-space: nowrap;
+}
+
+.btn-logout:hover {
+  background: rgba(232, 52, 75, 0.1);
+  color: var(--erro);
+  border-color: var(--erro);
+}
+
+/* --- ÁREA DE CONTEÚDO PRINCIPAL --- */
+#conteudo {
+  flex: 1;
+  margin-left: var(--sidebar-largura);
+  padding: var(--espaco-xl);
+  min-height: 100vh;
+  transition: margin-left var(--transicao-lenta);
+  max-width: calc(100vw - var(--sidebar-largura));
+}
+
+/* ============================================================
+   5. TOPBAR (Cabeçalho das páginas)
+   Barra superior dentro da área de conteúdo com título
+   da página e ações contextuais.
+   ============================================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-xl);
+  padding-bottom: var(--espaco-lg);
+  border-bottom: 1px solid var(--neutro-200);
+}
+
+.topbar-titulo {
+  font-family: var(--fonte-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--azul-900);
+  line-height: 1.2;
+}
+
+.topbar-subtitulo {
+  font-size: 0.875rem;
+  color: var(--neutro-400);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   6. CARDS E PAINÉIS
+   Componente de contêiner com elevação visual para agrupar
+   seções de conteúdo relacionadas.
+   ============================================================ */
+.card {
+  background: var(--branco);
+  border-radius: var(--raio-lg);
+  padding: var(--espaco-xl);
+  box-shadow: var(--sombra-sm);
+  border: 1px solid var(--neutro-200);
+  margin-bottom: var(--espaco-lg);
+}
+
+.card-titulo {
+  font-family: var(--fonte-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--azul-800);
+  margin-bottom: var(--espaco-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+.card-titulo::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.1em;
+  background: var(--azul-400);
+  border-radius: 2px;
+}
+
+/* --- Cards de métricas do Dashboard --- */
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-lg);
+}
+
+.metrica-card {
+  background: var(--branco);
+  border-radius: var(--raio-lg);
+  padding: var(--espaco-lg);
+  border: 1px solid var(--neutro-200);
+  box-shadow: var(--sombra-sm);
+  transition: box-shadow var(--transicao), transform var(--transicao);
+  cursor: default;
+}
+
+.metrica-card:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+}
+
+.metrica-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--neutro-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--espaco-xs);
+}
+
+.metrica-card-valor {
+  font-family: var(--fonte-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--azul-800);
+  line-height: 1;
+}
+
+.metrica-card.azul    { border-top: 3px solid var(--azul-400); }
+.metrica-card.verde   { border-top: 3px solid var(--sucesso); }
+.metrica-card.vermelho{ border-top: 3px solid var(--erro); }
+.metrica-card.ciano   { border-top: 3px solid var(--ciano-500); }
+
+/* ============================================================
+   7. BOTÕES
+   Sistema de botões com variantes semânticas.
+   ============================================================ */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-xs);
+  padding: var(--espaco-sm) var(--espaco-md);
+  border-radius: var(--raio-md);
+  border: none;
+  font-family: var(--fonte-corpo);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transicao);
+  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+/* Botão primário — ações principais */
+.btn-primario, button.btn-primario {
+  background: linear-gradient(135deg, var(--azul-500), var(--azul-400));
+  color: var(--branco);
+  box-shadow: var(--sombra-azul);
+}
+.btn-primario:hover {
+  background: linear-gradient(135deg, var(--azul-400), var(--azul-300));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(37,114,212,0.35);
+}
+
+/* Botão secundário — ações de suporte */
+.btn-secundario {
+  background: var(--azul-50);
+  color: var(--azul-500);
+  border: 1px solid var(--azul-100);
+}
+.btn-secundario:hover {
+  background: var(--azul-100);
+  border-color: var(--azul-300);
+}
+
+/* Botão sucesso — aprovar, confirmar */
+.btn-sucesso {
+  background: var(--sucesso-bg);
+  color: var(--sucesso);
+  border: 1px solid rgba(15, 186, 114, 0.2);
+}
+.btn-sucesso:hover {
+  background: var(--sucesso);
+  color: var(--branco);
+}
+
+/* Botão perigo — excluir, reprovar */
+.btn-perigo {
+  background: var(--erro-bg);
+  color: var(--erro);
+  border: 1px solid rgba(232, 52, 75, 0.2);
+}
+.btn-perigo:hover {
+  background: var(--erro);
+  color: var(--branco);
+}
+
+/* Botão aviso — reabrir, reativar */
+.btn-aviso {
+  background: var(--aviso-bg);
+  color: var(--aviso);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+}
+.btn-aviso:hover {
+  background: var(--aviso);
+  color: var(--branco);
+}
+
+/* Botão neutro — ações secundárias genéricas */
+.btn-neutro {
+  background: var(--neutro-100);
+  color: var(--neutro-700);
+  border: 1px solid var(--neutro-200);
+}
+.btn-neutro:hover {
+  background: var(--neutro-200);
+  color: var(--neutro-900);
+}
+
+/* Grupo de botões em linha */
+.btn-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-xs);
+  margin-top: var(--espaco-sm);
+}
+
+/* ============================================================
+   8. FORMULÁRIOS
+   Estilos para campos de entrada, selects, textareas e labels.
+   ============================================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--espaco-md);
+}
+
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.form-grupo.full {
+  grid-column: 1 / -1;
+}
+
+label, .form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--neutro-700);
+  letter-spacing: 0.01em;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px var(--espaco-md);
+  border: 1.5px solid var(--neutro-200);
+  border-radius: var(--raio-md);
+  background: var(--branco);
+  font-family: var(--fonte-corpo);
+  font-size: 0.9rem;
+  color: var(--neutro-900);
+  transition: border-color var(--transicao), box-shadow var(--transicao);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--azul-400);
+  box-shadow: 0 0 0 3px rgba(37, 114, 212, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--neutro-400);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b90a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.6;
+}
+
+input[type="file"] {
+  padding: 8px var(--espaco-md);
+  cursor: pointer;
+  color: var(--neutro-600);
+}
+
+/* Campo de busca/filtro */
+.campo-busca-wrapper {
+  display: flex;
+  gap: var(--espaco-sm);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--espaco-lg);
+}
+
+.campo-busca-wrapper input,
+.campo-busca-wrapper select {
+  max-width: 240px;
+  flex: 1;
+}
+
+/* ============================================================
+   9. LISTA DE CANDIDATOS / COLABORADORES
+   Estilos para as listas que exibem registros do banco
+   com ações inline.
+   ============================================================ */
+#lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+#lista li {
+  background: var(--branco);
+  border: 1px solid var(--neutro-200);
+  border-radius: var(--raio-lg);
+  padding: var(--espaco-md) var(--espaco-lg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-sm);
+  transition: box-shadow var(--transicao), border-color var(--transicao);
+  position: relative;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--neutro-800);
+}
+
+#lista li:hover {
+  box-shadow: var(--sombra-md);
+  border-color: var(--azul-100);
+}
+
+/* Indicador colorido no lado esquerdo do item */
+#lista li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  border-radius: var(--raio-lg) 0 0 var(--raio-lg);
+  background: var(--neutro-200);
+}
+
+/* Estados de cor via JS */
+#lista li[data-status="aprovado"]::before  { background: var(--sucesso); }
+#lista li[data-status="reprovado"]::before { background: var(--erro); }
+#lista li[data-status="em_processo"]::before { background: var(--aviso); }
+
+/* Painel de detalhes expansível */
+.detalhe-panel {
+  width: 100%;
+  background: var(--azul-50);
+  border-radius: var(--raio-md);
+  padding: var(--espaco-md);
+  margin-top: var(--espaco-sm);
+  border: 1px solid var(--azul-100);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--neutro-700);
+}
+
+.detalhe-panel p {
+  margin: 0;
+}
+
+.detalhe-panel strong {
+  color: var(--azul-700);
+  font-weight: 600;
+}
+
+/* ============================================================
+   10. BADGES E TAGS DE STATUS
+   Componentes de indicação visual de estado.
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--raio-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-sucesso  { background: var(--sucesso-bg);  color: var(--sucesso); }
+.badge-erro     { background: var(--erro-bg);     color: var(--erro); }
+.badge-aviso    { background: var(--aviso-bg);    color: var(--aviso); }
+.badge-info     { background: var(--info-bg);     color: var(--info); }
+.badge-neutro   { background: var(--neutro-100);  color: var(--neutro-600); }
+
+/* ============================================================
+   11. GRÁFICOS
+   Contêiner do canvas do Chart.js com tamanho definido.
+   ============================================================ */
+.grafico-wrapper {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   12. INFO DE VAGA (inscricao.html)
+   Painel que exibe os detalhes da vaga selecionada no
+   formulário de inscrição público.
+   ============================================================ */
+#infoVaga {
+  background: var(--azul-50);
+  border: 1px solid var(--azul-100);
+  border-radius: var(--raio-md);
+  padding: var(--espaco-md);
+  margin-top: var(--espaco-sm);
+  font-size: 0.875rem;
+  color: var(--neutro-700);
+  line-height: 1.8;
+}
+
+#infoVaga p { margin: 0; }
+#infoVaga strong { color: var(--azul-700); }
+#infoVaga hr { border: none; border-top: 1px solid var(--azul-100); margin: var(--espaco-sm) 0; }
+
+/* ============================================================
+   13. LOADING STATE
+   Feedback visual para operações assíncronas.
+   ============================================================ */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+  color: var(--neutro-400);
+  font-style: italic;
+  font-size: 0.875rem;
+  padding: var(--espaco-lg);
+}
+
+.loading::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--neutro-200);
+  border-top-color: var(--azul-400);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   14. ANIMAÇÃO DE ENTRADA DE PÁGINA
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#conteudo {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* ============================================================
+   15. RESPONSIVIDADE
+   Adaptações para dispositivos móveis e tablets.
+   A sidebar colapsa em telas pequenas, mostrando overlay.
+   ============================================================ */
+
+/* --- Botão hamburguer (visível apenas em mobile) --- */
+.btn-menu-mobile {
+  display: none;
+  position: fixed;
+  top: var(--espaco-md);
+  left: var(--espaco-md);
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raio-sm);
+  background: var(--azul-800);
+  color: var(--branco);
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--sombra-md);
+}
+
+/* --- Overlay escuro atrás da sidebar em mobile --- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+}
+
+@media (max-width: 900px) {
+  #sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transicao-lenta);
+    z-index: 150;
+  }
+
+  #sidebar.aberta {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.visivel {
+    display: block;
+  }
+
+  .btn-menu-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #conteudo {
+    margin-left: 0;
+    max-width: 100%;
+    padding: var(--espaco-lg) var(--espaco-md);
+    padding-top: calc(var(--espaco-xl) + 48px);
+  }
+
+  .topbar-titulo {
+    font-size: 1.4rem;
+  }
+
+  .metricas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-busca-wrapper input,
+  .campo-busca-wrapper select {
+    max-width: 100%;
+  }
+
+  .metricas-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #lista li {
+    padding: var(--espaco-sm) var(--espaco-md);
+  }
+}
+
+/* ============================================================
+   16. SCROLLBAR CUSTOMIZADA (Webkit)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--neutro-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neutro-200);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--azul-300);
+}
+
+/* ============================================================
+   17. LINKS
+   ============================================================ */
+a {
+  color: var(--azul-400);
+  text-decoration: none;
+  transition: color var(--transicao);
+}
+a:hover {
+  color: var(--ciano-500);
+  text-decoration: underline;
+}
+
+/* ============================================================
+   18. DIVISORES E ESPAÇADORES
+   ============================================================ */
+hr {
+  border: none;
+  border-top: 1px solid var(--neutro-200);
+  margin: var(--espaco-lg) 0;
+}
+
+/* ============================================================
+   19. UTILITÁRIOS
+   Classes auxiliares de uso geral.
+   ============================================================ */
+.mt-sm { margin-top: var(--espaco-sm); }
+.mt-md { margin-top: var(--espaco-md); }
+.mt-lg { margin-top: var(--espaco-lg); }
+.mb-lg { margin-bottom: var(--espaco-lg); }
+
+.texto-muted   { color: var(--neutro-400); font-size: 0.875rem; }
+.texto-sucesso { color: var(--sucesso); }
+.texto-erro    { color: var(--erro); }
+.texto-aviso   { color: var(--aviso); }
+
+.hidden { display: none !important; }
+
+/* Wrapper para campos que aparecem/somem dinamicamente */
+.campo-condicional {
+  display: none;
+  margin-top: var(--espaco-sm);
+}
+.campo-condicional.visivel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}

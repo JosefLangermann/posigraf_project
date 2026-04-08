@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  SISTEMA DE RH - POSIGRAF
+  Página: Dashboard Principal (index.html)
+  ============================================================
+  Descrição:
+    Página central do sistema de RH. Exibe métricas em tempo
+    real dos candidatos (total, em processo, aprovados,
+    reprovados e taxa de aprovação), gráfico de pizza e
+    lista filtrável de candidatos com ações inline.
+
+  Dependências:
+    - style.css       : Estilos globais do sistema
+    - supabase-js     : Cliente do banco de dados Supabase
+    - chart.js        : Biblioteca de gráficos
+    - index.js        : Lógica de negócio desta página
+  ============================================================
+-->
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — RH Posigraf</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Botão hamburguer para abrir sidebar em mobile -->
+<button class="btn-menu-mobile" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+
+<!-- Overlay escuro para fechar sidebar em mobile ao clicar fora -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- =====================================================
+     SIDEBAR — Menu de navegação lateral fixo
+     Contém branding, perfil do usuário e links de nav.
+===================================================== -->
+<nav id="sidebar" role="navigation" aria-label="Menu principal">
+
+  <!-- Marca / Logo -->
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🏭</div>
+    <div>
+      <div class="sidebar-logo-texto">Posigraf</div>
+      <div class="sidebar-logo-sub">RH System</div>
+    </div>
+  </div>
+
+  <!-- Perfil do usuário logado -->
+  <div class="sidebar-perfil">
+    <img id="fotoPerfil" src="https://img.bgstatic.com/multiLang/web/605120c4719cc92a226e9ac6f3049631.jpg" alt="Foto de perfil">
+    <div id="nomePerfil" class="nav-secao-titulo" style="color:white;font-size:.85rem;">RH Admin</div>
+    <div id="emailPerfil" class="texto-muted" style="font-size:.72rem;">rh@posigraf.com.br</div>
+  </div>
+
+  <!-- Links de navegação principais -->
+  <div class="sidebar-nav">
+    <span class="nav-secao-titulo">Menu</span>
+
+    <button class="nav-btn ativo" onclick="irDashboard()">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+
+    <button class="nav-btn" onclick="irCadastro()">
+      <span class="nav-icon">👤</span> Candidatos
+    </button>
+
+    <button class="nav-btn" onclick="location.href='vagas.html'">
+      <span class="nav-icon">💼</span> Vagas
+    </button>
+
+    <button class="nav-btn" onclick="location.href='colaboradores.html'">
+      <span class="nav-icon">🏢</span> Colaboradores
+    </button>
+
+    <span class="nav-secao-titulo">Conta</span>
+
+    <button class="nav-btn" onclick="editarPerfil()">
+      <span class="nav-icon">✏️</span> Editar Perfil
+    </button>
+  </div>
+
+  <!-- Botão de logout no rodapé da sidebar -->
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="logout()">
+      <span>↩</span> Sair do sistema
+    </button>
+  </div>
+</nav>
+
+<!-- =====================================================
+     CONTEÚDO PRINCIPAL — Dashboard
+===================================================== -->
+<main id="conteudo">
+
+  <!-- Cabeçalho da página -->
+  <div class="topbar">
+    <div>
+      <h1 class="topbar-titulo">Dashboard</h1>
+      <p class="topbar-subtitulo">Visão geral do processo seletivo</p>
+    </div>
+  </div>
+
+  <!-- Métricas principais em cards numéricos -->
+  <div class="metricas-grid">
+    <div class="metrica-card azul">
+      <div class="metrica-card-label">Total</div>
+      <div class="metrica-card-valor" id="total">—</div>
+    </div>
+    <div class="metrica-card ciano">
+      <div class="metrica-card-label">Em Processo</div>
+      <div class="metrica-card-valor" id="em_processo">—</div>
+    </div>
+    <div class="metrica-card verde">
+      <div class="metrica-card-label">Aprovados</div>
+      <div class="metrica-card-valor" id="aprovados">—</div>
+    </div>
+    <div class="metrica-card vermelho">
+      <div class="metrica-card-label">Reprovados</div>
+      <div class="metrica-card-valor" id="reprovados">—</div>
+    </div>
+    <div class="metrica-card azul">
+      <div class="metrica-card-label">Taxa de Aprovação</div>
+      <div class="metrica-card-valor" id="taxa">—</div>
+    </div>
+  </div>
+
+  <!-- Grid: gráfico + lista de candidatos -->
+  <div style="display:grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+
+    <!-- Gráfico de distribuição de status -->
+    <div class="card">
+      <div class="card-titulo">Distribuição</div>
+      <div class="grafico-wrapper">
+        <canvas id="grafico"></canvas>
+      </div>
+    </div>
+
+    <!-- Lista de candidatos com filtros -->
+    <div class="card">
+      <div class="card-titulo">Candidatos</div>
+
+      <!-- Filtros de busca e status -->
+      <div class="campo-busca-wrapper">
+        <select id="filtro" onchange="carregarCandidatos()">
+          <option value="todos">Todos os status</option>
+          <option value="em_processo">Em processo</option>
+          <option value="aprovado">Aprovados</option>
+          <option value="reprovado">Reprovados</option>
+        </select>
+        <input type="text" id="busca" placeholder="🔍 Buscar por nome..." oninput="carregarCandidatos()">
+      </div>
+
+      <!-- Lista preenchida dinamicamente pelo index.js -->
+      <ul id="lista">
+        <li class="loading">Carregando candidatos...</li>
+      </ul>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Dependências externas -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="index.js"></script>
+
+<!-- Script de controle do menu mobile -->
+<script>
+  /**
+   * toggleSidebar()
+   * Alterna a visibilidade da sidebar em dispositivos móveis,
+   * adicionando/removendo classes CSS que controlam transform e overlay.
+   */
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('aberta');
+    document.getElementById('sidebarOverlay').classList.toggle('visivel');
+  }
+</script>
+</body>
+</html>

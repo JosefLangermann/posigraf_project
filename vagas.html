@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  SISTEMA DE RH - POSIGRAF
+  Página: Gestão de Vagas (vagas.html)
+  ============================================================
+  Descrição:
+    Interface administrativa para criação, edição, exclusão
+    e controle de status (aberta/fechada) das vagas de
+    emprego da Posigraf. Suporta três modalidades de
+    contrato: CLT, Estágio e Aprendiz.
+
+  Dependências:
+    - style.css   : Estilos globais do sistema
+    - supabase-js : Cliente do banco de dados
+    - vagas.js    : Lógica de CRUD de vagas
+  ============================================================
+-->
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vagas — RH Posigraf</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button class="btn-menu-mobile" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+<nav id="sidebar" role="navigation" aria-label="Menu principal">
+
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🏭</div>
+    <div>
+      <div class="sidebar-logo-texto">Posigraf</div>
+      <div class="sidebar-logo-sub">RH System</div>
+    </div>
+  </div>
+
+  <div class="sidebar-perfil">
+    <img id="fotoPerfil" src="https://img.bgstatic.com/multiLang/web/605120c4719cc92a226e9ac6f3049631.jpg" alt="Foto de perfil">
+    <div id="nomePerfil" class="nav-secao-titulo" style="color:white;font-size:.85rem;">RH Admin</div>
+    <div id="emailPerfil" class="texto-muted" style="font-size:.72rem;">rh@posigraf.com.br</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <span class="nav-secao-titulo">Menu</span>
+
+    <button class="nav-btn" onclick="location.href='index.html'">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+
+    <button class="nav-btn" onclick="location.href='cadastro.html'">
+      <span class="nav-icon">👤</span> Candidatos
+    </button>
+
+    <button class="nav-btn ativo" onclick="void(0)">
+      <span class="nav-icon">💼</span> Vagas
+    </button>
+
+    <button class="nav-btn" onclick="location.href='colaboradores.html'">
+      <span class="nav-icon">🏢</span> Colaboradores
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="logout()">
+      <span>↩</span> Sair do sistema
+    </button>
+  </div>
+</nav>
+
+<!-- =====================================================
+     CONTEÚDO PRINCIPAL
+===================================================== -->
+<main id="conteudo">
+
+  <div class="topbar">
+    <div>
+      <h1 class="topbar-titulo">Vagas</h1>
+      <p class="topbar-subtitulo">Cadastro e gerenciamento de vagas abertas</p>
+    </div>
+  </div>
+
+  <!-- Grid: formulário + lista -->
+  <div style="display:grid; grid-template-columns: 400px 1fr; gap:24px; align-items:start;">
+
+    <!-- ===== FORMULÁRIO DE VAGA ===== -->
+    <div class="card">
+      <div class="card-titulo">Nova Vaga</div>
+
+      <div class="form-grid">
+        <div class="form-grupo full">
+          <label for="titulo">Título da Vaga</label>
+          <input type="text" id="titulo" placeholder="Ex: Analista de TI">
+        </div>
+
+        <div class="form-grupo">
+          <label for="salario">Salário</label>
+          <input type="text" id="salario" placeholder="R$ 2.500,00">
+        </div>
+
+        <div class="form-grupo">
+          <label for="turno">Turno</label>
+          <input type="text" id="turno" placeholder="Ex: Manhã / Tarde">
+        </div>
+
+        <div class="form-grupo">
+          <label for="setor">Setor</label>
+          <input type="text" id="setor" placeholder="Ex: Produção, TI">
+        </div>
+
+        <div class="form-grupo">
+          <label for="beneficios">Benefícios</label>
+          <input type="text" id="beneficios" placeholder="VR, VT, Plano de saúde">
+        </div>
+
+        <div class="form-grupo full">
+          <label for="tipo_contrato">Tipo de Contrato</label>
+          <select id="tipo_contrato" onchange="ajustarCampos()">
+            <option value="clt">CLT</option>
+            <option value="aprendiz">Aprendiz</option>
+            <option value="estagio">Estágio</option>
+          </select>
+        </div>
+
+        <!-- Campo: duração (estágio/aprendiz) -->
+        <div id="campoDuracao" class="campo-condicional full">
+          <label for="duracao_meses">Duração (meses)</label>
+          <input type="number" id="duracao_meses" placeholder="Ex: 12" min="1" max="24">
+        </div>
+
+        <!-- Campo: instituição (aprendiz) -->
+        <div id="campoInstituicao" class="campo-condicional full">
+          <label for="instituicao">Instituição Parceira</label>
+          <input type="text" id="instituicao" placeholder="Ex: SENAI, SENAC">
+        </div>
+
+        <div class="form-grupo full">
+          <label for="descricao">Descrição da Vaga</label>
+          <textarea id="descricao" placeholder="Descreva as atividades e responsabilidades..."></textarea>
+        </div>
+
+        <div class="form-grupo full">
+          <label for="requisitos">Requisitos</label>
+          <textarea id="requisitos" placeholder="Ex: Ensino médio completo, conhecimento em informática..."></textarea>
+        </div>
+
+      </div>
+
+      <button class="btn-primario mt-md" style="width:100%;" onclick="salvarVaga()">
+        💾 Salvar Vaga
+      </button>
+    </div>
+
+    <!-- ===== LISTA DE VAGAS ===== -->
+    <div class="card">
+      <div class="card-titulo">Vagas Cadastradas</div>
+      <ul id="listaVagas">
+        <li class="loading">Carregando vagas...</li>
+      </ul>
+    </div>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="vagas.js"></script>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('aberta');
+    document.getElementById('sidebarOverlay').classList.toggle('visivel');
+  }
+
+  /**
+   * Mostra/esconde campos condicionais no formulário de vagas
+   * com base no tipo de contrato selecionado.
+   * Sobrescreve ajustarCampos() do vagas.js para usar as
+   * classes CSS do sistema de design em vez de inline styles.
+   */
+  const _ajustarOriginal = typeof ajustarCampos === 'function' ? ajustarCampos : null;
+
+  function ajustarCampos() {
+    const tipo = document.getElementById('tipo_contrato').value;
+    const duracao = document.getElementById('campoDuracao');
+    const inst = document.getElementById('campoInstituicao');
+
+    duracao.classList.toggle('visivel', tipo === 'estagio' || tipo === 'aprendiz');
+    inst.classList.toggle('visivel', tipo === 'aprendiz');
+  }
+</script>
+</body>
+</html>
